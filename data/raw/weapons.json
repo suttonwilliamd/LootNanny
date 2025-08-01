@@ -5176,6 +5176,26 @@
     "decay": "0.0",
     "type": "Pistol"
   },
+  "Frontier Combat Knife": {
+    "ammo": 49,
+    "decay": "0.00018",
+    "type": "Melee"
+  },
+  "Frontier Combat Knife, Adjusted": {
+    "ammo": 98,
+    "decay": "0.00018",
+    "type": "Melee"
+  },
+  "Frontier Hunting Rifle": {
+    "ammo": 100,
+    "decay": "0.0002",
+    "type": "Rifle"
+  },
+  "Frontier Hunting Rifle, Adjusted": {
+    "ammo": 180,
+    "decay": "0.0002",
+    "type": "Rifle"
+  },
   "Functional Slicer (L)": {
     "ammo": 0,
     "decay": "0.041",
