@@ -113,20 +113,20 @@ def parse_log_line(line: str) -> LogLine:
 
 
 REGEXES = {
-    re.compile("Critical hit - Additional damage! You inflicted (\d+\.\d+) points of damage"): (ChatType.DAMAGE, CombatRow, {"critical": True}),
-    re.compile("You inflicted (\d+\.\d+) points of damage"): (ChatType.DAMAGE, CombatRow, {}),
-    re.compile("You healed yourself (\d+\.\d+) points"): (ChatType.HEAL, HealRow, {}),
-    re.compile("Damage deflected!"): (ChatType.DEFLECT, BaseChatRow, {}),
-    re.compile("You Evaded the attack"): (ChatType.EVADE, BaseChatRow, {}),
-    re.compile("You missed"): (ChatType.DODGE, CombatRow, {"miss": True}),
-    re.compile("The target Dodged your attack"): (ChatType.DODGE, CombatRow, {"miss": True}),
-    re.compile("The target Evaded your attack"): (ChatType.DODGE, CombatRow, {"miss": True}),
-    re.compile("The target Jammed your attack"): (ChatType.DODGE, CombatRow, {"miss": True}),
-    re.compile("You took (\d+\.\d+) points of damage"): (ChatType.DAMAGE, BaseChatRow, {}),
-    re.compile("You have gained (\d+\.\d+) experience in your ([a-zA-Z ]+) skill"): (ChatType.SKILL, SkillRow, {}),
-    re.compile("You have gained (\d+\.\d+) ([a-zA-Z ]+)"): (ChatType.SKILL, SkillRow, {}),
-    re.compile("Your ([a-zA-Z ]+) has improved by (\d+\.\d+)"): (ChatType.SKILL, SkillRow, {}),
-    re.compile("Your enhancer ([a-zA-Z0-9 ]+) on your .* broke."): (ChatType.ENHANCER, EnhancerBreakages, {}),
+    re.compile(r"Critical hit - Additional damage! You inflicted (\d+\.\d+) points of damage"): (ChatType.DAMAGE, CombatRow, {"critical": True}),
+    re.compile(r"You inflicted (\d+\.\d+) points of damage"): (ChatType.DAMAGE, CombatRow, {}),
+    re.compile(r"You healed yourself (\d+\.\d+) points"): (ChatType.HEAL, HealRow, {}),
+    re.compile(r"Damage deflected!"): (ChatType.DEFLECT, BaseChatRow, {}),
+    re.compile(r"You Evaded the attack"): (ChatType.EVADE, BaseChatRow, {}),
+    re.compile(r"You missed"): (ChatType.DODGE, CombatRow, {"miss": True}),
+    re.compile(r"The target Dodged your attack"): (ChatType.DODGE, CombatRow, {"miss": True}),
+    re.compile(r"The target Evaded your attack"): (ChatType.DODGE, CombatRow, {"miss": True}),
+    re.compile(r"The target Jammed your attack"): (ChatType.DODGE, CombatRow, {"miss": True}),
+    re.compile(r"You took (\d+\.\d+) points of damage"): (ChatType.DAMAGE, BaseChatRow, {}),
+    re.compile(r"You have gained (\d+\.\d+) experience in your ([a-zA-Z ]+) skill"): (ChatType.SKILL, SkillRow, {}),
+    re.compile(r"You have gained (\d+\.\d+) ([a-zA-Z ]+)"): (ChatType.SKILL, SkillRow, {}),
+    re.compile(r"Your ([a-zA-Z ]+) has improved by (\d+\.\d+)"): (ChatType.SKILL, SkillRow, {}),
+    re.compile(r"Your enhancer ([a-zA-Z0-9 ]+) on your .* broke."): (ChatType.ENHANCER, EnhancerBreakages, {}),
     re.compile(r"You received (.*) x \((\d+)\) Value: (\d+\.\d+) PED"): (ChatType.LOOT, LootInstance, {})
 }
 
@@ -146,8 +146,12 @@ class ChatReader(object):
     def __init__(self, app):
         self.app = app
         self.lines = []
-
+        self.max_lines = 1000  # Limit memory usage
+        
         self.reader = None
+        self.file_handle = None
+        self.fd = None
+        self._stop_event = threading.Event()
 
     def delay_start_reader(self):
         if self.reader:
@@ -156,13 +160,24 @@ class ChatReader(object):
         if not self.app.config.location.value:
             return
 
-        self.fd = tailer.follow(open(self.app.config.location.value, "r", encoding="utf_8_sig"), delay=0.01)
-        self.reader = threading.Thread(target=self.readlines, daemon=True)
-        self.reader.start()
+        try:
+            self.file_handle = open(self.app.config.location.value, "r", encoding="utf_8_sig")
+            self.fd = tailer.follow(self.file_handle, delay=0.01)
+            self.reader = threading.Thread(target=self.readlines, daemon=True)
+            self.reader.start()
+        except Exception as e:
+            print(f"Error starting chat reader: {e}")
+            self.cleanup()
 
     def readlines(self):
         try:
+            if not self.fd:
+                return
+                
             for line in self.fd:
+                if self._stop_event.is_set():
+                    break
+                    
                 log_line = parse_log_line(line)
                 if log_line.channel == "System":
                     matched = False
@@ -188,10 +203,44 @@ class ChatReader(object):
                             self.lines.append(chat_instance)
                             matched = True
                             break
+                
+                # Prevent memory accumulation by limiting stored lines
+                if len(self.lines) > self.max_lines:
+                    self.lines = self.lines[-self.max_lines//2:]  # Keep half the buffer
+                    
         except UnicodeDecodeError:
             pass
+        except Exception as e:
+            print(f"Error in chat reader: {e}")
+        finally:
+            self.cleanup()
 
     def getline(self):
         if len(self.lines):
             return self.lines.pop(0)
         return None
+
+    def cleanup(self):
+        """Clean up resources to prevent memory leaks"""
+        self._stop_event.set()
+        
+        if self.file_handle:
+            try:
+                self.file_handle.close()
+            except:
+                pass
+            self.file_handle = None
+            
+        if self.fd:
+            try:
+                self.fd.close()
+            except:
+                pass
+            self.fd = None
+            
+        self.lines.clear()
+        self.reader = None
+
+    def __del__(self):
+        """Destructor to ensure cleanup"""
+        self.cleanup()

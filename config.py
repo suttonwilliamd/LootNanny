@@ -17,6 +17,9 @@ STREAMER_LAYOUT_DEFAULT = {'layout': [
         ['Total Loots: {}', 'TOTAL_LOOTS'],
         ['Total Spend: {} PED', 'TOTAL_SPEND'],
         ['Total Return: {} PED', 'TOTAL_RETURN']
+    ],
+    [
+        ['Cost Per Kill: {} PED', 'COST_PER_KILL']
     ]], 'style': 'font-size: 12pt;'}
 
 
@@ -89,8 +92,8 @@ class Config(object):
 
                 value = loadouts
             elif item == "selected_loadout":
-                if isinstance(data, list):
-                    value = Loadout(**dict(zip(Loadout.FIELDS, data)))
+                if isinstance(value, list):
+                    value = Loadout(**dict(zip(Loadout.FIELDS, value)))
                 else:
                     value = Loadout(**value)
 

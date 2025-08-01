@@ -5,14 +5,17 @@ from decimal import Decimal
 from helpers import resource_path
 
 ALL_WEAPONS = {}
-data_filename = resource_path("weapons.json")
+data_filename = resource_path("data/raw/weapons.json")
 
 
 with open(data_filename, 'r') as f:
     data = json.loads(f.read())
-    for name, weapon_data in data.items():
-        weapon_data["decay"] = Decimal(weapon_data["decay"])
-        ALL_WEAPONS[name] = weapon_data
+    # Handle both old and new JSON structures
+    weapons_data = data.get("data", data)
+    for name, weapon_data in weapons_data.items():
+        if isinstance(weapon_data, dict):
+            weapon_data["decay"] = Decimal(weapon_data["decay"])
+            ALL_WEAPONS[name] = weapon_data
 
 FIELDS = ("name", "class", "type", "damage", "decay", "ammo")
 

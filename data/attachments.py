@@ -6,14 +6,22 @@ from helpers import resource_path
 
 
 ALL_ATTACHMENTS = {}
-data_filename = resource_path("attachments.json")
+data_filename = resource_path("data/raw/attachments.json")
 
 if os.path.exists(data_filename):
     with open(data_filename, 'r') as f:
         data = json.loads(f.read())
-        for name, attachment_data in data.items():
-            attachment_data["decay"] = Decimal(attachment_data["decay"])
-            ALL_ATTACHMENTS[name] = attachment_data
+        # Access the nested data structure
+        if "data" in data and isinstance(data["data"], dict):
+            for name, attachment_data in data["data"].items():
+                attachment_data["decay"] = Decimal(attachment_data["decay"])
+                ALL_ATTACHMENTS[name] = attachment_data
+        else:
+            # Fallback for legacy format
+            for name, attachment_data in data.items():
+                if isinstance(attachment_data, dict) and "decay" in attachment_data:
+                    attachment_data["decay"] = Decimal(attachment_data["decay"])
+                    ALL_ATTACHMENTS[name] = attachment_data
 
 FIELDS = ("name", "type", "decay", "ammo")
 

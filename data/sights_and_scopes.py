@@ -7,22 +7,30 @@ from helpers import resource_path
 
 SIGHTS = {}
 SCOPES = {}
-sights_filename = resource_path("sights.json")
-scopes_filename = resource_path("scopes.json")
+sights_filename = resource_path("data/raw/sights.json")
+scopes_filename = resource_path("data/raw/scopes.json")
 
 if os.path.exists(sights_filename):
     with open(sights_filename, 'r') as f:
         data = json.loads(f.read())
+        # Handle both nested and flat JSON structures
+        if isinstance(data, dict) and "data" in data:
+            data = data["data"]
         for name, attachment_data in data.items():
-            attachment_data["decay"] = Decimal(attachment_data["decay"])
-            SIGHTS[name] = attachment_data
+            if isinstance(attachment_data, dict):
+                attachment_data["decay"] = Decimal(attachment_data["decay"])
+                SIGHTS[name] = attachment_data
 
 if os.path.exists(scopes_filename):
     with open(scopes_filename, 'r') as f:
         data = json.loads(f.read())
+        # Handle both nested and flat JSON structures
+        if isinstance(data, dict) and "data" in data:
+            data = data["data"]
         for name, attachment_data in data.items():
-            attachment_data["decay"] = Decimal(attachment_data["decay"])
-            SCOPES[name] = attachment_data
+            if isinstance(attachment_data, dict):
+                attachment_data["decay"] = Decimal(attachment_data["decay"])
+                SCOPES[name] = attachment_data
 
 
 FIELDS = ("name", "type", "decay", "ammo")

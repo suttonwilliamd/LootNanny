@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QStatusBar, QFormLayout, QHeaderView, QTabWidget, QCheckBox, QGridLayout, QComboBox, QLineEdit, QLabel, QApplication, QWidget, QPushButton, QVBoxLayout, QTableWidget, QTableWidgetItem
-from PyQt5.QtCore import QFile, QTextStream
+from PyQt5.QtCore import QFile, QTextStream, QTimer
 import pyqtgraph as pg
 import traceback
 from datetime import datetime
@@ -44,6 +44,9 @@ class LootNanny(QWidget):
         self.setWindowTitle("Loot Nanny")
         self.resize(600, 320)
         # Create a top-level layout
+        
+        self.timer = None  # Store timer reference for cleanup
+        
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -449,8 +452,22 @@ class LootNanny(QWidget):
         self.combat_module.save_active_run(force=True)
         if self.streamer_window:
             self.streamer_window.close()
+            self.streamer_window = None
         if self.twitch.twitch_bot:
-            pass # Clean tidy up needed
+            if hasattr(self.twitch.twitch_bot, 'cleanup'):
+                self.twitch.twitch_bot.cleanup()
+        
+        # Clean up modules
+        if hasattr(self.combat_module, 'cleanup'):
+            self.combat_module.cleanup()
+        if hasattr(self.chat_reader, 'cleanup'):
+            self.chat_reader.cleanup()
+        
+        # Clean up timer
+        if self.timer:
+            self.timer.stop()
+            self.timer.deleteLater()
+            
         event.accept()
 
 
@@ -464,7 +481,8 @@ def create_ui():
 
     timer = QtCore.QTimer()
     timer.timeout.connect(window.on_tick)
-    timer.start(MAIN_EVENT_LOOP_TICK * 1000)
+    timer.start(int(MAIN_EVENT_LOOP_TICK * 1000))
+    window.timer = timer  # Store timer reference for cleanup
 
     app.exec()
 

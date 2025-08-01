@@ -134,3 +134,4 @@ dmypy.json
 image.png
 *.bat
 *.log
+.vscode/

@@ -11,7 +11,7 @@ import json
 from modules.base import BaseModule
 from chat import BaseChatRow, CombatRow, LootInstance, SkillRow, EnhancerBreakages, HealRow, GlobalInstance
 from helpers import dt_to_ts, ts_to_dt, format_filename
-from ocr import screenshot_window
+from utils.screenshot import screenshot_window
 from modules.markup import MarkupStore
 
 
@@ -350,6 +350,25 @@ class HuntingTrip(object):
         else:
             return Decimal("0.0")
 
+    def cleanup(self):
+        """Clean up memory by clearing large data structures"""
+        # Clear loot data
+        self.looted_items.clear()
+        
+        # Clear skill data
+        self.skillgains.clear()
+        self.skillprocs.clear()
+        
+        # Clear enhancer data
+        self.enhancer_breaks.clear()
+        
+        # Clear graph data
+        self.return_over_time.clear()
+        self.multipliers = ([], [])
+        
+        # Clear references
+        self.last_loot_instance = None
+
 
 class CombatModule(BaseModule):
 
@@ -377,6 +396,10 @@ class CombatModule(BaseModule):
         # Runs
         self.active_run: HuntingTrip = None
         self.runs: List[HuntingTrip] = []
+        
+        # Memory management
+        self.max_runs_in_memory = 50  # Limit number of runs kept in memory
+        self._file_handles = []  # Track open file handles
 
         # Graphs
         self.multiplier_graph = None
@@ -522,6 +545,13 @@ class CombatModule(BaseModule):
     def create_new_run(self):
         self.active_run = HuntingTrip(datetime.now(), Decimal(self.ammo_burn) / Decimal(10000) + self.decay)
         self.runs.append(self.active_run)
+        
+        # Clean up old runs if we exceed memory limit
+        if len(self.runs) > self.max_runs_in_memory:
+            old_runs = self.runs[:-self.max_runs_in_memory]
+            for run in old_runs:
+                run.cleanup()  # Explicitly cleanup memory
+            self.runs = self.runs[-self.max_runs_in_memory:]
 
     def save_active_run(self, force=False):
         if not self.active_run:
@@ -532,13 +562,32 @@ class CombatModule(BaseModule):
         else:
             self.active_run.save_to_disk()
 
+    def cleanup(self):
+        """Clean up memory by clearing old runs and releasing resources"""
+        for run in self.runs:
+            run.cleanup()
+        self.runs.clear()
+        self.active_run = None
+        
+        # Clear GUI references
+        self.loot_table = None
+        self.runs_table = None
+        self.skill_table = None
+        self.enhancer_table = None
+        self.combat_fields.clear()
+        self.loot_fields.clear()
+        
+        # Clear graphs
+        if self.multiplier_graph:
+            self.multiplier_graph.clear()
+        if self.return_graph:
+            self.return_graph.clear()
+
     def load_runs(self):
         if os.path.exists(RUNS_FILE):
             # Old system of saving runs, need to migrate
             migrate_runs()
-
             os.remove(RUNS_FILE)
-
             time.sleep(5)
 
         if not os.path.exists(RUNS_DIRECTORY):
@@ -555,9 +604,16 @@ class CombatModule(BaseModule):
                 except:
                     os.remove(format_filename(fn))
 
+        # Sort by timestamp (newest first) and limit to max_runs_in_memory
+        run_files.sort(key=lambda x: int(x.split('_')[1].split('.')[0]), reverse=True)
+        run_files = run_files[:self.max_runs_in_memory]
+
         for i, run_fn in enumerate(run_files, 1):
-            run = HuntingTrip.load_from_filename(run_fn, include_loot=(i == len(run_files)))
-            self.runs.append(run)
+            try:
+                run = HuntingTrip.load_from_filename(run_fn, include_loot=(i == 1))  # Only newest gets loot data
+                self.runs.append(run)
+            except Exception as e:
+                print(f"Error loading run {run_fn}: {e}")
 
         if self.runs:
             if self.runs[-1].time_end is None:

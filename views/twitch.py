@@ -103,6 +103,16 @@ class TwitchTab(QWidget):
         self.twitch_bot_thread = Thread(target=self.twitch_bot.start, daemon=True)
         self.twitch_bot_thread.start()
 
+    def cleanup(self):
+        """Clean up twitch bot resources"""
+        if self.twitch_bot is not None:
+            if hasattr(self.twitch_bot, 'stop'):
+                self.twitch_bot.stop()
+            self.twitch_bot = None
+        if self.twitch_bot_thread is not None and self.twitch_bot_thread.is_alive():
+            # Thread is daemon, will be killed when main thread exits
+            self.twitch_bot_thread = None
+
     def on_settings_changed(self):
         self.app.config.twitch_token = self.oauth_token_text.text()
         self.app.config.twitch_username = self.username_text.text()

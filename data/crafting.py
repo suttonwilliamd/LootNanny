@@ -8,12 +8,15 @@ from modules.crafting import Slot, Blueprint
 
 ALL_RESOURCES = {}
 ALL_BLUEPRINTS = {}
-bp_filename = resource_path("crafting.json")
-res_filename = resource_path("resources.json")
+bp_filename = resource_path("data/raw/crafting.json")
+res_filename = resource_path("data/raw/resources.json")
 
 if os.path.exists(bp_filename):
     with open(bp_filename, 'r') as f:
         data = json.loads(f.read())
+        # Handle both nested and flat JSON structures
+        if isinstance(data, dict) and "data" in data:
+            data = data["data"]
         for name, slots in data.items():
             bp = Blueprint(name, [Slot(*s) for s in slots])
             ALL_BLUEPRINTS[name] = bp
@@ -21,6 +24,9 @@ if os.path.exists(bp_filename):
 if os.path.exists(res_filename):
     with open(res_filename, 'r') as f:
         data = json.loads(f.read())
+        # Handle both nested and flat JSON structures
+        if isinstance(data, dict) and "data" in data:
+            data = data["data"]
         for name, value in data.items():
             ALL_RESOURCES[name] = Decimal(value)
 

@@ -21,6 +21,7 @@ class LayoutValue(str, Enum):
     DPP = "DPP"
     GLOBALS = "GLOBALS"
     HOFS = "HOFS"
+    COST_PER_KILL = "COST_PER_KILL"
 
 
 class StreamerWindow(QWidget):
@@ -41,7 +42,7 @@ class StreamerWindow(QWidget):
 
         self.widget_mappings: Dict[LayoutValue, QWidget] = defaultdict(lambda: [])
         self.layout = self.create_widgets()
-        self.set_text_from_data(0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0.0)
+        self.set_text_from_data(0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0)
         self.resize_to_contents()
 
         # show all the widgets
@@ -97,19 +98,28 @@ class StreamerWindow(QWidget):
         return layout
 
     def set_text_from_module(self, combat_module: "CombatModule"):
+        total_cost = combat_module.active_run.total_cost + combat_module.active_run.extra_spend
+        loot_instances = combat_module.active_run.loot_instances
+        
+        # Calculate cost per kill (cost per loot instance)
+        cost_per_kill = Decimal("0.00")
+        if loot_instances > 0:
+            cost_per_kill = total_cost / loot_instances
+            
         self.set_text_from_data(
-            combat_module.active_run.loot_instances,
-            combat_module.active_run.total_cost + combat_module.active_run.extra_spend,
+            loot_instances,
+            total_cost,
             combat_module.active_run.tt_return,
             combat_module.active_run.hofs,
             combat_module.active_run.globals,
             combat_module.active_run.dpp,
             combat_module.active_run.total_return_mu,
             combat_module.active_run.total_return_mu_perc,
-            combat_module.active_run.total_return_mu - (combat_module.active_run.total_cost - combat_module.active_run.extra_spend)
+            combat_module.active_run.total_return_mu - (combat_module.active_run.total_cost - combat_module.active_run.extra_spend),
+            cost_per_kill
         )
 
-    def set_text_from_data(self, loots, cost, returns, hofs, globals, dpp, total_returns, total_return_mu_perc, profit):
+    def set_text_from_data(self, loots, cost, returns, hofs, globals, dpp, total_returns, total_return_mu_perc, profit, cost_per_kill):
         data = {
             LayoutValue.DPP: f"{dpp:.4f}",
             LayoutValue.GLOBALS: f"{globals:,}",
@@ -119,7 +129,8 @@ class StreamerWindow(QWidget):
             LayoutValue.TOTAL_SPEND: f"{cost:.2f}",
             LayoutValue.TT_PROFIT: f"{returns - cost:.2f}",
             LayoutValue.TOTAL_RETURN: f"{total_returns:.2f}",
-            LayoutValue.PROFIT: f"{profit:.2f}"
+            LayoutValue.PROFIT: f"{profit:.2f}",
+            LayoutValue.COST_PER_KILL: f"{cost_per_kill:.2f}"
         }
         if cost > 0:
             data[LayoutValue.PERCENTAGE_RETURN] = "%.2f" % (Decimal(returns) / Decimal(cost) * Decimal(100.0))
