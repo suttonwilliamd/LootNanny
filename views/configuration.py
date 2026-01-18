@@ -308,6 +308,12 @@ class WeaponPopOut(QWidget):
         self.layout.setGeometry(0, 0, 0, 0)
         self.adjustSize()
 
+    def resize_to_contents(self):
+        # Force layout to recalculate
+        self.layout.invalidate()
+        self.layout.activate()
+        self.adjustSize()
+
     def create_widgets(self):
         layout = QVBoxLayout()
         self.setLayout(layout)
