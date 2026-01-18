@@ -4,7 +4,7 @@ import json
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QFileDialog, QTextEdit, QFormLayout, QHBoxLayout, QHeaderView, QTabWidget, QCheckBox, QGridLayout, QComboBox, QLineEdit, QLabel, QApplication, QWidget, QPushButton, QVBoxLayout, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QFileDialog, QTextEdit, QFormLayout, QHBoxLayout, QHeaderView, QTabWidget, QCheckBox, QGridLayout, QComboBox, QLineEdit, QLabel, QApplication, QWidget, QPushButton, QVBoxLayout, QTableWidget, QTableWidgetItem, QLayout
 
 from data.weapons import ALL_WEAPONS
 from data.sights_and_scopes import SIGHTS, SCOPES
@@ -172,17 +172,17 @@ class ConfigTab(QWidget):
     def add_new_weapon(self):
         weapon_popout = WeaponPopOut(self)
         if self.app.config.theme == "light":
-            self.set_stylesheet(weapon_popout, "light.qss")
+            self.app.set_stylesheet(weapon_popout, "light.qss")
         else:
-            self.set_stylesheet(weapon_popout, "dark.qss")
+            self.app.set_stylesheet(weapon_popout, "dark.qss")
         self.add_weapon_btn.setEnabled(False)
 
     def create_weapon(self):
         create_weapon_popout = CreateWeaponPopOut(self)
         if self.app.config.theme == "light":
-            self.set_stylesheet(create_weapon_popout, "light.qss")
+            self.app.set_stylesheet(create_weapon_popout, "light.qss")
         else:
-            self.set_stylesheet(create_weapon_popout, "dark.qss")
+            self.app.set_stylesheet(create_weapon_popout, "dark.qss")
         self.create_weapon_btn.setEnabled(False)
 
     def add_weapon_cancled(self):
@@ -304,7 +304,8 @@ class WeaponPopOut(QWidget):
         self.show()
 
     def resize_to_contents(self):
-        self.setFixedSize(self.layout.sizeHint())
+        self.layout.setSizeConstraint(QLayout.SetFixedSize)
+        self.adjustSize()
 
     def create_widgets(self):
         layout = QVBoxLayout()
@@ -436,7 +437,8 @@ class CreateWeaponPopOut(QWidget):
         self.show()
 
     def resize_to_contents(self):
-        self.setFixedSize(self.layout.sizeHint())
+        self.layout.setSizeConstraint(QLayout.SetFixedSize)
+        self.adjustSize()
 
     def create_widgets(self):
         layout = QVBoxLayout()
