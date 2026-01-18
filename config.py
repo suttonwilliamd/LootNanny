@@ -126,7 +126,6 @@ class Config(object):
             print("Error saving config!")
 
     def __setattr__(self, item, value):
-        print("Setting", item, value)
         if not isinstance(getattr(self, item, None), CU.ConfigValue):
             return super().__setattr__(item, value)
         config_item: CU.ConfigValue = getattr(self, item)

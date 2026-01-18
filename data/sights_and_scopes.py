@@ -13,14 +13,18 @@ scopes_filename = resource_path("scopes.json")
 if os.path.exists(sights_filename):
     with open(sights_filename, 'r') as f:
         data = json.loads(f.read())
-        for name, attachment_data in data.items():
+        # Handle JSON with "data" wrapper
+        sights_data = data.get("data", data)
+        for name, attachment_data in sights_data.items():
             attachment_data["decay"] = Decimal(attachment_data["decay"])
             SIGHTS[name] = attachment_data
 
 if os.path.exists(scopes_filename):
     with open(scopes_filename, 'r') as f:
         data = json.loads(f.read())
-        for name, attachment_data in data.items():
+        # Handle JSON with "data" wrapper
+        scopes_data = data.get("data", data)
+        for name, attachment_data in scopes_data.items():
             attachment_data["decay"] = Decimal(attachment_data["decay"])
             SCOPES[name] = attachment_data
 

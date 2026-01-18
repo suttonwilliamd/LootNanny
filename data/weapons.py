@@ -10,7 +10,9 @@ data_filename = resource_path("weapons.json")
 
 with open(data_filename, 'r') as f:
     data = json.loads(f.read())
-    for name, weapon_data in data.items():
+    # Handle JSON with "data" wrapper
+    weapons_data = data.get("data", data)
+    for name, weapon_data in weapons_data.items():
         weapon_data["decay"] = Decimal(weapon_data["decay"])
         ALL_WEAPONS[name] = weapon_data
 

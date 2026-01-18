@@ -11,7 +11,9 @@ data_filename = resource_path("attachments.json")
 if os.path.exists(data_filename):
     with open(data_filename, 'r') as f:
         data = json.loads(f.read())
-        for name, attachment_data in data.items():
+        # Handle JSON with "data" wrapper
+        attachments_data = data.get("data", data)
+        for name, attachment_data in attachments_data.items():
             attachment_data["decay"] = Decimal(attachment_data["decay"])
             ALL_ATTACHMENTS[name] = attachment_data
 

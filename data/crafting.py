@@ -14,14 +14,18 @@ res_filename = resource_path("resources.json")
 if os.path.exists(bp_filename):
     with open(bp_filename, 'r') as f:
         data = json.loads(f.read())
-        for name, slots in data.items():
+        # Handle JSON with "data" wrapper
+        bp_data = data.get("data", data)
+        for name, slots in bp_data.items():
             bp = Blueprint(name, [Slot(*s) for s in slots])
             ALL_BLUEPRINTS[name] = bp
 
 if os.path.exists(res_filename):
     with open(res_filename, 'r') as f:
         data = json.loads(f.read())
-        for name, value in data.items():
+        # Handle JSON with "data" wrapper
+        res_data = data.get("data", data)
+        for name, value in res_data.items():
             ALL_RESOURCES[name] = Decimal(value)
 
 

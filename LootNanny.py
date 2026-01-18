@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QStatusBar, QFormLayout, QHeaderView, QTabWidget, QCheckBox, QGridLayout, QComboBox, QLineEdit, QLabel, QApplication, QWidget, QPushButton, QVBoxLayout, QTableWidget, QTableWidgetItem
-from PyQt5.QtCore import QFile, QTextStream
+from PyQt5.QtCore import QFile, QTextStream, QTimer
 import pyqtgraph as pg
 import traceback
 from datetime import datetime
@@ -462,9 +462,9 @@ def create_ui():
     window.set_stylesheet(window, "dark.qss")
     window.show()
 
-    timer = QtCore.QTimer()
+    timer = QTimer()
     timer.timeout.connect(window.on_tick)
-    timer.start(MAIN_EVENT_LOOP_TICK * 1000)
+    timer.start(int(MAIN_EVENT_LOOP_TICK * 1000))
 
     app.exec()
 

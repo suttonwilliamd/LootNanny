@@ -21,6 +21,7 @@ class LayoutValue(str, Enum):
     DPP = "DPP"
     GLOBALS = "GLOBALS"
     HOFS = "HOFS"
+    COST_PER_KILL = "COST_PER_KILL"
 
 
 class StreamerWindow(QWidget):
@@ -110,16 +111,18 @@ class StreamerWindow(QWidget):
         )
 
     def set_text_from_data(self, loots, cost, returns, hofs, globals, dpp, total_returns, total_return_mu_perc, profit):
+        total_kills = len(loots) if loots else 0
         data = {
-            LayoutValue.DPP: f"{dpp:.4f}",
-            LayoutValue.GLOBALS: f"{globals:,}",
-            LayoutValue.HOFS: f"{hofs:,}",
-            LayoutValue.TOTAL_LOOTS: f"{loots:,}",
-            LayoutValue.TT_RETURN: f"{returns:.2f}",
+            LayoutValue.DPP: "%.3f" % dpp,
+            LayoutValue.TOTAL_LOOTS: total_kills,
+            LayoutValue.GLOBALS: globals,
+            LayoutValue.HOFS: hofs,
             LayoutValue.TOTAL_SPEND: f"{cost:.2f}",
+            LayoutValue.TT_RETURN: f"{returns:.2f}",
             LayoutValue.TT_PROFIT: f"{returns - cost:.2f}",
             LayoutValue.TOTAL_RETURN: f"{total_returns:.2f}",
-            LayoutValue.PROFIT: f"{profit:.2f}"
+            LayoutValue.PROFIT: f"{profit:.2f}",
+            LayoutValue.COST_PER_KILL: f"{cost / total_kills:.2f}" if total_kills > 0 else "0.00"
         }
         if cost > 0:
             data[LayoutValue.PERCENTAGE_RETURN] = "%.2f" % (Decimal(returns) / Decimal(cost) * Decimal(100.0))
