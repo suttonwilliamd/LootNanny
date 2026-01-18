@@ -435,8 +435,6 @@ class CreateWeaponPopOut(QWidget):
         self.show()
 
     def create_widgets(self):
-
-    def create_widgets(self):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
