@@ -304,12 +304,14 @@ class WeaponPopOut(QWidget):
         self.show()
 
     def resize_to_contents(self):
-        self.layout.setSizeConstraint(QLayout.SetFixedSize)
+        # Force layout to calculate proper size
+        self.layout.setGeometry(0, 0, 0, 0)
         self.adjustSize()
 
     def create_widgets(self):
         layout = QVBoxLayout()
         self.setLayout(layout)
+        self.layout = layout
 
         form_inputs = QFormLayout()
 
@@ -437,7 +439,8 @@ class CreateWeaponPopOut(QWidget):
         self.show()
 
     def resize_to_contents(self):
-        self.layout.setSizeConstraint(QLayout.SetFixedSize)
+        # Force layout to calculate proper size
+        self.layout.setGeometry(0, 0, 0, 0)
         self.adjustSize()
 
     def create_widgets(self):
