@@ -298,20 +298,12 @@ class WeaponPopOut(QWidget):
         self.accuracy_enhancers = 0
         self.economy_enhancers = 0
 
-        self.layout = self.create_widgets()
+        self.create_widgets()
         self.show()
-        # Call resize after layout is fully set up
-        self.resize_to_contents()
 
     def resize_to_contents(self):
         # Force layout to calculate proper size
         self.layout.setGeometry(0, 0, 0, 0)
-        self.adjustSize()
-
-    def resize_to_contents(self):
-        # Force layout to recalculate
-        self.layout.invalidate()
-        self.layout.activate()
         self.adjustSize()
 
     def create_widgets(self):
@@ -440,14 +432,9 @@ class CreateWeaponPopOut(QWidget):
         self.setGeometry(100, 100, 340, 100)
 
         self.layout = self.create_widgets()
-        self.resize_to_contents()
-
         self.show()
 
-    def resize_to_contents(self):
-        # Force layout to calculate proper size
-        self.layout.setGeometry(0, 0, 0, 0)
-        self.adjustSize()
+    def create_widgets(self):
 
     def create_widgets(self):
         layout = QVBoxLayout()
