@@ -111,7 +111,7 @@ class StreamerWindow(QWidget):
         )
 
     def set_text_from_data(self, loots, cost, returns, hofs, globals, dpp, total_returns, total_return_mu_perc, profit):
-        total_kills = len(loots) if loots else 0
+        total_kills = loots if loots else 0
         data = {
             LayoutValue.DPP: "%.3f" % dpp,
             LayoutValue.TOTAL_LOOTS: total_kills,

@@ -3951,6 +3951,26 @@
     "decay": "0.00003",
     "type": "Carbine"
   },
+  "Frontier Combat Knife": {
+    "ammo": 49,
+    "decay": "0.00018",
+    "type": "Shortblades"
+  },
+  "Frontier Combat Knife, Adjusted": {
+    "ammo": 98,
+    "decay": "0.00018",
+    "type": "Shortblades"
+  },
+  "Frontier Hunting Rifle": {
+    "ammo": 100,
+    "decay": "0.00020",
+    "type": "Rifle"
+  },
+  "Frontier Hunting Rifle, Adjusted": {
+    "ammo": 180,
+    "decay": "0.00020",
+    "type": "Rifle"
+  },
   "EWE LC-120 Purpose (L)": {
     "ammo": 1258,
     "decay": "0.010",
