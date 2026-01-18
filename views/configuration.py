@@ -299,9 +299,9 @@ class WeaponPopOut(QWidget):
         self.economy_enhancers = 0
 
         self.layout = self.create_widgets()
-        self.resize_to_contents()
-
         self.show()
+        # Call resize after layout is fully set up
+        self.resize_to_contents()
 
     def resize_to_contents(self):
         # Force layout to calculate proper size
