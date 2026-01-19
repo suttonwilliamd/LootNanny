@@ -51,7 +51,7 @@ six==1.16.0
 tailer==0.4.1
 tempora==4.1.2
 tornado==6.1
-twitchio==2.1.2
+twitchio==3.0.1
 typing_extensions==4.0.0
 urllib3==1.26.7
 win-unicode-console==0.5

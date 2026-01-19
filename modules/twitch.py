@@ -66,7 +66,11 @@ class TwitchIntegration(commands.Bot):
         self.app = app
         self.username = username
         self.command_prefix = command_prefix
-        super().__init__(token=token, prefix=command_prefix, initial_channels=[channel])
+        
+        # Remove 'oauth:' prefix if present (twitchio adds it automatically)
+        clean_token = token.replace('oauth:', '') if token.startswith('oauth:') else token
+        
+        super().__init__(token=clean_token, prefix=command_prefix, initial_channels=[channel])
         self.running = True
         self.exited = False
 
