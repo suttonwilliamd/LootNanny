@@ -1,0 +1,58 @@
+{ "updated": "20230928T190400",
+  "data":
+  {
+  "0x0F382C8C91E58C8273C0 (L)": {
+    "ammo": 1764,
+    "decay": "0.05111",
+    "type": "Pistol"
+  },
+  "0x0F382C8C91E58C82AA7 (L)": {
+    "ammo": 1364,
+    "decay": "0.04551",
+    "type": "Pistol"
+  },
+  "0x0F382C8C91E58C8460 (L)": {
+    "ammo": 728,
+    "decay": "0.02421",
+    "type": "Pistol"
+  },
+  "EWE LC-100 Frontier": {
+    "ammo": 1117,
+    "decay": "0.00003",
+    "type": "Carbine"
+  },
+  "EWE LC-100 Frontier (L)": {
+    "ammo": 1117,
+    "decay": "0.00003",
+    "type": "Carbine"
+  },
+  "EWE LC-100 Frontier, CDF Edition (L)": {
+    "ammo": 1117,
+    "decay": "0.00003",
+    "type": "Carbine"
+  },
+  "Frontier Combat Knife": {
+    "ammo": 49,
+    "decay": "0.00018",
+    "type": "Shortblades"
+  },
+  "Frontier Combat Knife, Adjusted": {
+    "ammo": 98,
+    "decay": "0.00018",
+    "type": "Shortblades"
+  },
+  "Frontier Hunting Rifle": {
+    "ammo": 100,
+    "decay": "0.00020",
+    "type": "Rifle"
+  },
+  "Frontier Hunting Rifle, Adjusted": {
+    "ammo": 180,
+    "decay": "0.00020",
+    "type": "Rifle"
+  },
+  "EWE LC-120 Purpose (L)": {
+    "ammo": 1258,
+    "decay": "0.010",
+    "type": "Carbine"
+  }

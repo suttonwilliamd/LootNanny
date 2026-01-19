@@ -28,7 +28,7 @@ class ConfigTab(QWidget):
         self.refresh_custom_weapons()
 
         # Chat Location
-        self.chat_location_text = QLineEdit(text=self.app.config.location)
+        self.chat_location_text = QLineEdit(text=self.app.config.location.ui_value)
         form_inputs.addRow("Chat Location:", self.chat_location_text)
         self.chat_location_text.editingFinished.connect(self.onChatLocationChanged)
 
@@ -116,7 +116,7 @@ class ConfigTab(QWidget):
             os.makedirs(os.path.expanduser(self.screenshot_directory))
 
     def refresh_custom_weapons(self):
-        for custom_weapon in self.app.config.custom_weapons:
+        for custom_weapon in self.app.config.custom_weapons.value:
             custom_weapon = CustomWeapon(*custom_weapon)
             ALL_WEAPONS[f"!CUSTOM - {custom_weapon.weapon}"] = {
                 "type": "custom",
@@ -436,7 +436,6 @@ class CreateWeaponPopOut(QWidget):
 
     def create_widgets(self):
         layout = QVBoxLayout()
-        layout.setObjectName("weaponPopoutLayout")
         self.setLayout(layout)
 
         form_inputs = QFormLayout()
