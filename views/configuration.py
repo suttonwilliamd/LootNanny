@@ -4,7 +4,7 @@ import json
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QFileDialog, QTextEdit, QFormLayout, QHBoxLayout, QHeaderView, QTabWidget, QCheckBox, QGridLayout, QComboBox, QLineEdit, QLabel, QApplication, QWidget, QPushButton, QVBoxLayout, QTableWidget, QTableWidgetItem, QLayout
+from PyQt5.QtWidgets import QFileDialog, QTextEdit, QFormLayout, QHBoxLayout, QHeaderView, QTabWidget, QCheckBox, QGridLayout, QComboBox, QLineEdit, QLabel, QApplication, QWidget, QPushButton, QVBoxLayout, QTableWidget, QTableWidgetItem, QLayout, QDialog
 
 from data.weapons import ALL_WEAPONS
 from data.sights_and_scopes import SIGHTS, SCOPES
@@ -120,7 +120,7 @@ class ConfigTab(QWidget):
         try:
             print(f"[DEBUG] custom_weapons type: {type(self.app.config.custom_weapons)}")
             print(f"[DEBUG] custom_weapons value: {self.app.config.custom_weapons}")
-            for custom_weapon in self.app.config.custom_weapons:
+            for custom_weapon in self.app.config.custom_weapons.value:
                 custom_weapon = CustomWeapon(*custom_weapon)
                 ALL_WEAPONS[f"!CUSTOM - {custom_weapon.weapon}"] = {
                     "type": "custom",
@@ -186,20 +186,17 @@ class ConfigTab(QWidget):
             print(f"[DEBUG] WeaponPopOut visible: {weapon_popout.isVisible()}")
             print(f"[DEBUG] WeaponPopOut window title: {weapon_popout.windowTitle()}")
             
-            # CRITICAL FIX: Ensure proper parent-child relationship
-            weapon_popout.setParent(self)  # Set LootNanny as parent
-            print(f"[DEBUG] WeaponPopOut parent set to: {self}")
-            print(f"[DEBUG] WeaponPopOut visible after setParent: {weapon_popout.isVisible()}")
+            # Dialog properly handles parent-child relationship
             
             if self.app.config.theme == "light":
                 self.app.set_stylesheet(weapon_popout, "light.qss")
             else:
                 self.app.set_stylesheet(weapon_popout, "dark.qss")
-            self.add_weapon_btn.setEnabled(False)
             
-            print("[DEBUG] About to call show()...")
-            weapon_popout.show()
-            print(f"[DEBUG] WeaponPopOut visible after show: {weapon_popout.isVisible()}")
+            print("[DEBUG] About to call exec_() for modal dialog...")
+            weapon_popout.exec_()
+            self.add_weapon_btn.setEnabled(True)
+            print(f"[DEBUG] WeaponPopOut modal dialog completed")
             
         except Exception as e:
             print(f"[DEBUG] ERROR creating WeaponPopOut: {e}")
@@ -215,7 +212,8 @@ class ConfigTab(QWidget):
                 self.app.set_stylesheet(create_weapon_popout, "light.qss")
             else:
                 self.app.set_stylesheet(create_weapon_popout, "dark.qss")
-            self.create_weapon_btn.setEnabled(False)
+            create_weapon_popout.exec_()
+            self.create_weapon_btn.setEnabled(True)
         except Exception as e:
             print(f"[DEBUG] ERROR creating CreateWeaponPopOut: {e}")
             import traceback
@@ -308,21 +306,20 @@ class ConfigTab(QWidget):
         self.app.config.location = self.chat_location_text.text()
 
 
-class WeaponPopOut(QWidget):
+class WeaponPopOut(QDialog):
     def __init__(self, parent: ConfigTab):
-        super().__init__()
+        super().__init__(parent)
 
         self.parent = parent
 
-        # this will hide the title bar
-        self.setWindowFlag(Qt.FramelessWindowHint)
-        self.setWindowFlag(Qt.WindowStaysOnTopHint)
-
+        # Make it a frameless dialog that stays on top
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        
         # set the title
         self.setWindowTitle("Add Weapon")
 
         # setting  the geometry of window
-        self.setGeometry(100, 100, 340, 100)
+        self.setGeometry(100, 100, 340, 400)
 
 
         self.weapon = ""
@@ -335,7 +332,6 @@ class WeaponPopOut(QWidget):
         self.economy_enhancers = 0
 
         self.create_widgets()
-        self.show()
 
     def resize_to_contents(self):
         # Force layout to calculate proper size
@@ -388,7 +384,6 @@ class WeaponPopOut(QWidget):
         self.economy_enhancers_txt = QLineEdit(text="0")
         form_inputs.addRow("Economy Enhancers:", self.economy_enhancers_txt)
         self.economy_enhancers_txt.editingFinished.connect(self.on_field_changed)
-        layout.addLayout(form_inputs)
 
         h_layout = QHBoxLayout()
 
@@ -451,36 +446,23 @@ class WeaponPopOut(QWidget):
         event.accept()  # let the window close
 
 
-class CreateWeaponPopOut(QWidget):
+class CreateWeaponPopOut(QDialog):
     def __init__(self, parent: ConfigTab):
         print("[DEBUG] CreateWeaponPopOut.__init__ started")
-        super().__init__()
+        super().__init__(parent)
 
         self.parent = parent
 
-        # this will hide the title bar
-        self.setWindowFlag(Qt.FramelessWindowHint)
-        self.setWindowFlag(Qt.WindowStaysOnTopHint)
-
+        # Make it a frameless dialog that stays on top
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        
         # set the title
-        self.setWindowTitle("Add Weapon")
+        self.setWindowTitle("Create Weapon")
 
         # setting  the geometry of window
-        self.setGeometry(100, 100, 340, 100)
+        self.setGeometry(100, 100, 340, 200)
 
-        print("[DEBUG] About to create_widgets...")
-        self.layout = self.create_widgets()
-        print("[DEBUG] create_widgets completed")
-        
-        print("[DEBUG] About to call show() on CreateWeaponPopOut...")
-        try:
-            self.show()
-            print("[DEBUG] CreateWeaponPopOut.show() completed successfully")
-        except Exception as e:
-            print(f"[DEBUG] ERROR in CreateWeaponPopOut.show(): {e}")
-            import traceback
-            traceback.print_exc()
-        print("[DEBUG] CreateWeaponPopOut.show() completed")
+        self.create_widgets()
 
     def create_widgets(self):
         layout = QVBoxLayout()
