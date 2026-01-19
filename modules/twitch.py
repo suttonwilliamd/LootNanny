@@ -72,9 +72,7 @@ class TwitchIntegration:
         
         # Create bot with minimal parameters to avoid compatibility issues
         self.bot = commands.Bot(
-            token=clean_token,
-            prefix=command_prefix,
-            initial_channels=[channel]
+            token=clean_token
         )
         
         self.running = True
