@@ -70,7 +70,7 @@ class TwitchIntegration:
         # Remove 'oauth:' prefix if present (twitchio adds it automatically)
         clean_token = token.replace('oauth:', '') if token.startswith('oauth:') else token
         
-        # Create bot with token - newer API handles this differently
+        # Create bot with minimal parameters to avoid compatibility issues
         self.bot = commands.Bot(
             token=clean_token,
             prefix=command_prefix,
@@ -103,8 +103,7 @@ class TwitchIntegration:
 
         # Send a hello back!
         # Sending a reply back to the channel is easy... Below is an example.
-        extra_command = ctx.message.content.lstrip(self.command_prefix + "lootnanny").strip()
-
+        extra_command = ctx.message.text.lstrip(self.command_prefix + "lootnanny").strip()
         try:
             cmd = Commands(extra_command)
             if cmd not in self.app.twitch.commands_enabled:
