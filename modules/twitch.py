@@ -59,7 +59,7 @@ class StopException(Exception):
     pass
 
 
-class TwitchIntegration(commands.Bot):
+class TwitchIntegration:
 
     def __init__(self, app, username="", token="", channel="", command_prefix=""):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
@@ -70,24 +70,25 @@ class TwitchIntegration(commands.Bot):
         # Remove 'oauth:' prefix if present (twitchio adds it automatically)
         clean_token = token.replace('oauth:', '') if token.startswith('oauth:') else token
         
-        super().__init__(token=clean_token, prefix=command_prefix, initial_channels=[channel])
+        # Create bot with token - newer API handles this differently
+        self.bot = commands.Bot(
+            token=clean_token,
+            prefix=command_prefix,
+            initial_channels=[channel]
+        )
+        
         self.running = True
         self.exited = False
 
-    def run(self):
+    def start(self):
         """
-        A blocking function that starts the asyncio event loop,
-        connects to the twitch IRC server, and cleans up when done.
+        A blocking function that starts the bot using modern twitchio.
         """
         try:
-            self.loop.create_task(self.connect())
-            self.loop.run_forever()
+            self.bot.run()
         except StopException:
             pass
         finally:
-            self.loop.stop()
-            time.sleep(2)
-            self.loop.close()
             self.exited = True
 
     async def event_ready(self):
