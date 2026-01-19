@@ -116,13 +116,22 @@ class ConfigTab(QWidget):
             os.makedirs(os.path.expanduser(self.screenshot_directory))
 
     def refresh_custom_weapons(self):
-        for custom_weapon in self.app.config.custom_weapons.value:
-            custom_weapon = CustomWeapon(*custom_weapon)
-            ALL_WEAPONS[f"!CUSTOM - {custom_weapon.weapon}"] = {
-                "type": "custom",
-                "decay": Decimal(custom_weapon.decay),
-                "ammo": custom_weapon.ammo_burn
-            }
+        print("[DEBUG] Refreshing custom weapons table...")
+        try:
+            print(f"[DEBUG] custom_weapons type: {type(self.app.config.custom_weapons)}")
+            print(f"[DEBUG] custom_weapons value: {self.app.config.custom_weapons}")
+            for custom_weapon in self.app.config.custom_weapons:
+                custom_weapon = CustomWeapon(*custom_weapon)
+                ALL_WEAPONS[f"!CUSTOM - {custom_weapon.weapon}"] = {
+                    "type": "custom",
+                    "decay": Decimal(custom_weapon.decay),
+                    "ammo": custom_weapon.ammo_burn
+                }
+                print(f"[DEBUG] Added weapon to table: {custom_weapon}")
+        except Exception as e:
+            print(f"[DEBUG] ERROR refreshing custom weapons: {e}")
+            import traceback
+            traceback.print_exc()
 
     def weapon_table_selected(self):
         indexes = self.weapons.selectionModel().selectedRows()
@@ -170,20 +179,34 @@ class ConfigTab(QWidget):
         self.weapons.setData(self.loadout_to_data())
 
     def add_new_weapon(self):
-        weapon_popout = WeaponPopOut(self)
-        if self.app.config.theme == "light":
-            self.app.set_stylesheet(weapon_popout, "light.qss")
-        else:
-            self.app.set_stylesheet(weapon_popout, "dark.qss")
-        self.add_weapon_btn.setEnabled(False)
+        print("[DEBUG] Creating WeaponPopOut...")
+        try:
+            weapon_popout = WeaponPopOut(self)
+            print(f"[DEBUG] WeaponPopOut created successfully: {weapon_popout}")
+            if self.app.config.theme == "light":
+                self.app.set_stylesheet(weapon_popout, "light.qss")
+            else:
+                self.app.set_stylesheet(weapon_popout, "dark.qss")
+            self.add_weapon_btn.setEnabled(False)
+        except Exception as e:
+            print(f"[DEBUG] ERROR creating WeaponPopOut: {e}")
+            import traceback
+            traceback.print_exc()
 
     def create_weapon(self):
-        create_weapon_popout = CreateWeaponPopOut(self)
-        if self.app.config.theme == "light":
-            self.app.set_stylesheet(create_weapon_popout, "light.qss")
-        else:
-            self.app.set_stylesheet(create_weapon_popout, "dark.qss")
-        self.create_weapon_btn.setEnabled(False)
+        print("[DEBUG] Creating CreateWeaponPopOut...")
+        try:
+            create_weapon_popout = CreateWeaponPopOut(self)
+            print(f"[DEBUG] CreateWeaponPopOut created successfully: {create_weapon_popout}")
+            if self.app.config.theme == "light":
+                self.app.set_stylesheet(create_weapon_popout, "light.qss")
+            else:
+                self.app.set_stylesheet(create_weapon_popout, "dark.qss")
+            self.create_weapon_btn.setEnabled(False)
+        except Exception as e:
+            print(f"[DEBUG] ERROR creating CreateWeaponPopOut: {e}")
+            import traceback
+            traceback.print_exc()
 
     def add_weapon_cancled(self):
         self.add_weapon_btn.setEnabled(True)
