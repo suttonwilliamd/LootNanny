@@ -183,11 +183,20 @@ class ConfigTab(QWidget):
         try:
             weapon_popout = WeaponPopOut(self)
             print(f"[DEBUG] WeaponPopOut created successfully: {weapon_popout}")
+            print(f"[DEBUG] WeaponPopOut reference: {weapon_popout}")
+            print(f"[DEBUG] WeaponPopOut visible: {weapon_popout.isVisible()}")
+            print(f"[DEBUG] WeaponPopOut window title: {weapon_popout.windowTitle()}")
+            
             if self.app.config.theme == "light":
                 self.app.set_stylesheet(weapon_popout, "light.qss")
             else:
                 self.app.set_stylesheet(weapon_popout, "dark.qss")
             self.add_weapon_btn.setEnabled(False)
+            
+            print("[DEBUG] About to call show()...")
+            weapon_popout.show()
+            print(f"[DEBUG] WeaponPopOut visible after show: {weapon_popout.isVisible()}")
+            
         except Exception as e:
             print(f"[DEBUG] ERROR creating WeaponPopOut: {e}")
             import traceback
@@ -460,7 +469,13 @@ class CreateWeaponPopOut(QWidget):
         print("[DEBUG] create_widgets completed")
         
         print("[DEBUG] About to call show() on CreateWeaponPopOut...")
-        self.show()
+        try:
+            self.show()
+            print("[DEBUG] CreateWeaponPopOut.show() completed successfully")
+        except Exception as e:
+            print(f"[DEBUG] ERROR in CreateWeaponPopOut.show(): {e}")
+            import traceback
+            traceback.print_exc()
         print("[DEBUG] CreateWeaponPopOut.show() completed")
 
     def create_widgets(self):
