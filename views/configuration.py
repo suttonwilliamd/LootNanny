@@ -440,6 +440,7 @@ class WeaponPopOut(QWidget):
 
 class CreateWeaponPopOut(QWidget):
     def __init__(self, parent: ConfigTab):
+        print("[DEBUG] CreateWeaponPopOut.__init__ started")
         super().__init__()
 
         self.parent = parent
@@ -454,8 +455,13 @@ class CreateWeaponPopOut(QWidget):
         # setting  the geometry of window
         self.setGeometry(100, 100, 340, 100)
 
+        print("[DEBUG] About to create_widgets...")
         self.layout = self.create_widgets()
+        print("[DEBUG] create_widgets completed")
+        
+        print("[DEBUG] About to call show() on CreateWeaponPopOut...")
         self.show()
+        print("[DEBUG] CreateWeaponPopOut.show() completed")
 
     def create_widgets(self):
         layout = QVBoxLayout()
