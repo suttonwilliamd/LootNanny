@@ -183,9 +183,13 @@ class ConfigTab(QWidget):
         try:
             weapon_popout = WeaponPopOut(self)
             print(f"[DEBUG] WeaponPopOut created successfully: {weapon_popout}")
-            print(f"[DEBUG] WeaponPopOut reference: {weapon_popout}")
             print(f"[DEBUG] WeaponPopOut visible: {weapon_popout.isVisible()}")
             print(f"[DEBUG] WeaponPopOut window title: {weapon_popout.windowTitle()}")
+            
+            # CRITICAL FIX: Ensure proper parent-child relationship
+            weapon_popout.setParent(self)  # Set LootNanny as parent
+            print(f"[DEBUG] WeaponPopOut parent set to: {self}")
+            print(f"[DEBUG] WeaponPopOut visible after setParent: {weapon_popout.isVisible()}")
             
             if self.app.config.theme == "light":
                 self.app.set_stylesheet(weapon_popout, "light.qss")
